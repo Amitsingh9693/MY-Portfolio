@@ -1,3 +1,4 @@
+// Needed for GlitchLoader at the bottom
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate } from 'motion/react';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -27,10 +28,10 @@ import Ai from './assests/Ai.png';
 import mern from './assests/mern.png';
 import prompt from './assests/prompt.png';
 import moketon from './assests/moketon.png';
-import udan from './assests/udaan.png';
 import gameguru from './assests/gameguru.png';
 import currencyconverter from './assests/currencyconveter.png';
 
+import Typewriter from "typewriter-effect";
 // --- Animation Components ---
 
 const TextReveal = ({ text, className = "" }: { text: string, className?: string }) => {
@@ -516,6 +517,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
     </nav>
   );
 };
@@ -530,53 +532,85 @@ const Hero = () => {
         -(e.clientY / window.innerHeight) * 2 + 1,
       ];
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   return (
     <section className="relative min-h-screen w-full flex items-center overflow-hidden pt-20">
+      
+      {/* Background Effects (unchanged) */}
       <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
       <div className="absolute inset-0 noise-bg" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 items-center h-full relative z-10">
+        
+        {/* LEFT CONTENT */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
           className="flex flex-col items-start"
         >
+
+          {/* 🔥 Tag */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(124,58,237,0.4)" }}
-            className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-8 shadow-[0_0_15px_rgba(124,58,237,0.2)] cursor-default"
+            transition={{ delay: 0.3 }}
+            className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-6"
           >
-            FULL STACK DEVELOPER
+            FULL STACK ENGINEER • AI SYSTEMS
           </motion.div>
 
+          {/* 🔥 Name */}
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-5xl md:text-8xl font-display font-black leading-[0.9] tracking-tighter mb-8"
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="text-5xl md:text-8xl font-display font-black leading-[0.9] tracking-tighter mb-6"
           >
             AMIT <br />
             <span className="text-zinc-700">KUMAR</span>
           </motion.h1>
 
+          {/* ⚡ Typing Effect */}
+          <div className="text-accent-purple text-sm font-bold tracking-widest mb-4">
+            <Typewriter
+              options={{
+                strings: [
+                  "Building Scalable Systems",
+                  "Crafting Clean Interfaces",
+                  "Integrating AI into Products"
+                ],
+                autoStart: true,
+                loop: true,
+                cursor: '_',
+                delay: 50,
+                deleteSpeed: 30,
+                pauseFor: 1500
+              }}
+            />
+          </div>
+
+          {/* 🧠 Description */}
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-zinc-400 text-lg max-w-md mb-10 leading-relaxed font-medium"
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="text-zinc-400 text-lg max-w-md mb-6 leading-relaxed font-medium"
           >
-            MERN Stack Developer & Gen AI Enthusiast. 
-            Building intelligent digital solutions with modern technologies.
+            I design and build high-performance web applications, combining clean engineering 
+            with AI to create smarter digital products.
           </motion.p>
 
+          {/* 💎 One-liner */}
+          <p className="text-white text-sm font-semibold italic mb-10">
+            "Built for performance. Designed for impact."
+          </p>
+
+          {/* 🔗 Buttons */}
           <div className="flex flex-wrap gap-5">
             <a 
               href="/cv.pdf"
@@ -586,6 +620,7 @@ const Hero = () => {
               DOWNLOAD CV
               <Download className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
             </a>
+
             <div className="flex gap-4">
               <a href="https://github.com/Amitsingh9693" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all">
                 <Github className="w-5 h-5 text-zinc-400" />
@@ -600,13 +635,15 @@ const Hero = () => {
           </div>
         </motion.div>
 
+        {/* RIGHT SIDE (3D unchanged) */}
         <div className="relative h-[500px] lg:h-full w-full flex items-center justify-center">
+          
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
             <motion.div 
               initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
               animate={{ opacity: 0.05, scale: 1, rotate: 0 }}
-              transition={{ duration: 2, ease: "easeOut" }}
-              className="text-[22vw] font-black tracking-tighter absolute text-white/5 uppercase select-none"
+              transition={{ duration: 2 }}
+              className="text-[22vw] font-black tracking-tighter absolute text-white/5 uppercase"
             >
               WELCOME
             </motion.div>
@@ -619,6 +656,7 @@ const Hero = () => {
               </Suspense>
             </Canvas>
           </div>
+
         </div>
       </div>
     </section>
@@ -629,43 +667,44 @@ const About = () => {
   const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
 
   return (
-    <section id="about" className="py-32 relative overflow-hidden" ref={ref}>
+    <section
+      id="about"
+      className="py-32 relative overflow-hidden"
+      ref={ref}
+    >
       <div className="container mx-auto px-6 md:px-12">
         <div className="max-w-4xl mx-auto text-center">
+
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
+            
+            {/* 🔥 Heading */}
             <h2 className="text-4xl md:text-7xl font-display font-black mb-10 leading-tight">
-              I BUILD <span className="text-accent-purple">INTELLIGENT</span><br/>
-              SYSTEMS WITH AI.
+              ABOUT <span className="text-accent-purple">ME</span>
             </h2>
-            <p className="text-zinc-400 text-xl mb-12 leading-relaxed max-w-3xl mx-auto">
-              I’m a Full Stack Developer who works with the MERN stack and Generative AI. I enjoy building simple, user-friendly applications and using AI to make them smarter and more useful for real-world problems.</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-left glass p-10 rounded-[32px] border-white/10">
-              {[
-                { label: 'FRONTEND', value: 'React.js, Tailwind CSS' },
-                { label: 'BACKEND', value: 'Node.js, Express.js' },
-                { label: 'DATABASE', value: 'MongoDB' },
-                { label: 'AI/ML', value: 'Generative AI, Prompt Eng.' }
-              ].map((item, i) => (
-                <motion.div 
-                  key={item.label}
-                  initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4 + i * 0.1, duration: 0.6, ease: "easeOut" }}
-                  whileHover={{ y: -8, scale: 1.05, backgroundColor: 'rgba(255,255,255,0.05)' }}
-                  className="group cursor-default p-4 rounded-2xl transition-all duration-300"
-                >
-                  <div className="text-[10px] font-black tracking-[0.2em] text-accent-purple mb-2 group-hover:text-white transition-colors">{item.label}</div>
-                  <div className="text-sm font-bold text-white leading-tight">{item.value}</div>
-                </motion.div>
-              ))}
-            </div>
+
+            {/* ✨ Paragraph 1 */}
+            <p className="text-zinc-400 text-xl mb-8 leading-relaxed max-w-3xl mx-auto">
+              I began by exploring how things work — breaking, fixing, and learning along the way. 
+              Over time, that turned into building real-world web applications.
+            </p>
+
+            {/* ✨ Paragraph 2 */}
+            <p className="text-zinc-400 text-xl mb-8 leading-relaxed max-w-3xl mx-auto">
+              Today, I create simple, fast, and user-focused products using the MERN stack, 
+              while using Generative AI to make them smarter and more useful.
+            </p>
+
+            {/* 💎 One-liner */}
+            <p className="text-white text-lg font-semibold italic">
+              "Simple ideas. Smart solutions. Real impact."
+            </p>
+
           </motion.div>
+
         </div>
       </div>
     </section>
@@ -673,105 +712,134 @@ const About = () => {
 };
 
 const Projects = () => {
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
-
   const projects = [
-    { 
-      title: 'AI INTERVIEW PRACTICE SYSTEM', 
-      category: 'GEN AI + MERN', 
-      desc: 'An intelligent interview preparation platform that uses Generative AI to simulate real-world technical interviews and provide instant feedback.',
-      link: 'https://github.com/Amitsingh9693/AI-Interview-Practice-System-',
-      icon: Terminal,
-      img: moketon
+    {
+      title: "AI INTERVIEW SYSTEM",
+      subtitle: "Simulating real-world interviews using AI",
+      problem:
+        "Preparing for technical interviews lacks real-time feedback and realistic simulation.",
+      solution:
+        "Built an AI-powered system that generates dynamic interview questions and evaluates responses using Generative AI.",
+      tech: "MERN Stack • OpenAI API • Prompt Engineering",
+      impact:
+        "Improves interview readiness with instant feedback and realistic practice experience.",
+      link: "https://github.com/Amitsingh9693/AI-Interview-Practice-System-",
+      img: moketon,
     },
-    { 
-      title: 'CURRENCY CONVERTER CHATBOT', 
-      category: 'WEB + API', 
-      desc: 'An interactive chat-based currency converter using HTML, CSS, and JavaScript. Integrated real-time exchange rate APIs to process accurate conversion data and deliver results instantly.',
-      link: 'https://github.com/Amitsingh9693/Live-Currency-Converter',
-      icon: Globe,
-      img: currencyconverter
+    {
+      title: "GAME RECOMMENDATION SYSTEM",
+      subtitle: "Personalized suggestions using ML logic",
+      problem:
+        "Users struggle to discover relevant games based on their preferences.",
+      solution:
+        "Developed a recommendation engine using collaborative filtering and content-based algorithms.",
+      tech: "JavaScript • Algorithms • Data Filtering",
+      impact:
+        "Delivers personalized recommendations, improving user engagement.",
+      link: "https://github.com/Amitsingh9693/Game-Recommendation-Bot",
+      img: gameguru,
     },
-    { 
-      title: 'GAME RECOMMENDATION BOT', 
-      category: 'WEB + API', 
-      desc: 'An intelligent bot that suggests games based on user preferences using collaborative filtering and content-based recommendation algorithms.',
-      link: 'https://github.com/Amitsingh9693/Game-Recommendation-Bot',
-      icon: Cpu,
-      img: gameguru
+    {
+      title: "CURRENCY CHATBOT",
+      subtitle: "Real-time financial interaction",
+      problem:
+        "Currency conversion tools lack intuitive and interactive user experience.",
+      solution:
+        "Created a chat-based interface integrated with live exchange rate APIs for instant conversion.",
+      tech: "HTML • CSS • JS • REST APIs",
+      impact:
+        "Fast, accurate, and user-friendly financial interactions.",
+      link: "https://github.com/Amitsingh9693/Live-Currency-Converter",
+      img: currencyconverter,
     },
-    { 
-      title: 'UDAAN PROJECT', 
-      category: 'WEB DEVELOPMENT', 
-      desc: 'A comprehensive web project focused on providing innovative solutions and seamless user experiences.',
-      link: 'https://github.com/Amitsingh9693/Udaan-Project',
-      icon: Rocket,
-      img: udan
-    }
   ];
 
   return (
-    <section id="projects" className="py-32 bg-secondary/30" ref={ref}>
-      <div className="container mx-auto px-6 md:px-12">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <div className="text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase">Selected Works</div>
-          <TextReveal text="PROJECTS." className="text-4xl md:text-6xl font-display font-black" />
-        </motion.div>
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-primary text-white selection:bg-accent-purple/30">
+      {/* Background Effects */}
+      <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 noise-bg" />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
 
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.2
-              }
-            }
-          }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+      {/* SECTION HEADER */}
+      <div className="container mx-auto px-6 md:px-12 flex flex-col items-center text-center py-24 z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
         >
-          {projects.map((p, i) => (
-            <motion.a
-              key={i}
-              href={p.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0 }
-              }}
-              whileHover={{ y: -10 }}
-              className="glass rounded-[32px] border-white/5 hover:border-accent-purple/30 transition-all group flex flex-col h-full overflow-hidden"
-            >
-              <div className="aspect-video w-full overflow-hidden relative">
-                <img 
-                  src={p.img} 
-                  alt={p.title} 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 ease-in-out"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-accent-purple/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="text-[10px] font-black tracking-widest text-accent-purple mb-3 uppercase">{p.category}</div>
-                <h3 className="text-xl font-display font-black text-white mb-3 group-hover:text-accent-purple transition-colors">{p.title}</h3>
-                <p className="text-zinc-500 text-xs leading-relaxed mb-6 flex-grow">{p.desc}</p>
-                <div className="flex items-center gap-2 text-[10px] font-black tracking-widest text-zinc-500 group-hover:text-white transition-colors">
-                  GITHUB REPO <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </motion.a>
-          ))}
+          <div className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase shadow-[0_0_15px_rgba(124,58,237,0.2)] cursor-default">SELECTED WORK</div>
+          <h2 className="text-4xl md:text-7xl font-black">
+            PROJECTS THAT <br />
+            <span className="text-accent-purple">CREATE IMPACT</span>
+          </h2>
         </motion.div>
+      </div>
+
+      {/* PROJECTS */}
+      <div className="container mx-auto px-6 md:px-12 grid gap-24 z-10">
+        {projects.map((p, i) => (
+          <div
+            key={i}
+            className="grid lg:grid-cols-2 items-center gap-12 glass rounded-3xl p-8 md:p-12 backdrop-blur-xl border border-white/10"
+          >
+            {/* LEFT — TEXT */}
+            <motion.div
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1 }}
+              className="space-y-6"
+            >
+              <h3 className="text-3xl md:text-5xl font-black">
+                {p.title}
+              </h3>
+              <p className="text-accent-purple font-semibold">
+                {p.subtitle}
+              </p>
+              <div className="space-y-4 text-zinc-400 leading-relaxed">
+                <p><span className="text-white font-semibold">Problem:</span> {p.problem}</p>
+                <p><span className="text-white font-semibold">Solution:</span> {p.solution}</p>
+                <p><span className="text-white font-semibold">Tech:</span> {p.tech}</p>
+                <p><span className="text-white font-semibold">Impact:</span> {p.impact}</p>
+              </div>
+              <a
+                href={p.link}
+                target="_blank"
+                className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-accent-purple hover:gap-4 transition-all"
+              >
+                VIEW PROJECT →
+              </a>
+            </motion.div>
+            {/* RIGHT — IMAGE */}
+            <motion.div
+              initial={{ opacity: 0, x: 80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1 }}
+              className="relative"
+            >
+              <div className="overflow-hidden rounded-3xl border border-white/10">
+                <img
+                  src={p.img}
+                  alt={p.title}
+                  className="w-full h-full object-cover hover:scale-105 transition duration-700"
+                />
+              </div>
+            </motion.div>
+          </div>
+        ))}
+      </div>
+
+      {/* FINAL CTA */}
+      <div className="w-full flex items-center justify-center text-center py-24 z-10">
+        <motion.h2
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          className="text-3xl md:text-5xl font-bold"
+        >
+          MORE PROJECTS ON <br />
+          <span className="text-accent-purple">GITHUB</span>
+        </motion.h2>
       </div>
     </section>
   );
@@ -1255,8 +1323,8 @@ const Timeline = ({ items, type = 'education' }: { items: any[], type?: 'educati
                   <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
                   {type === 'certification' && item.img && (
-                    <div className="aspect-video w-full mb-8 rounded-[24px] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700 relative">
-                      <img src={item.img} alt={item.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+                    <div className="aspect-video w-full mb-8 rounded-[24px] overflow-hidden relative">
+                      <img src={item.img} alt={item.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                   )}
                   
@@ -1372,17 +1440,15 @@ const CertificationSlider = ({ items }: { items: any[] }) => {
               <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               
               {item.img && (
-                <div className="flex justify-center items-center mb-8 rounded-4xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-1000 relative shadow-lg" style={{height: '240px'}}>
+                <div className="flex justify-center items-center mb-8 rounded-4xl overflow-hidden relative shadow-lg" style={{height: '240px'}}>
                   <img 
                     src={item.img} 
                     alt={item.title} 
-                    className="w-full h-[240px] object-cover rounded-3xl transform group-hover:scale-105 transition-transform duration-700 cursor-pointer" 
+                    className="w-full h-[240px] object-cover rounded-3xl cursor-pointer" 
                     style={{width: '100%', height: '240px', imageRendering: 'auto'}} 
                     referrerPolicy="no-referrer" 
                     onClick={() => setModalImg(item.img)}
                   />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-700" />
-                  <div className="absolute inset-0 bg-accent-purple/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 </div>
               )}
                     {/* Modal Popup for Certificate Image */}
@@ -1689,6 +1755,103 @@ const Footer = () => {
   );
 };
 
+
+
+
+// --- Glitch Loader Component ---
+const glitchFrames = [
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+  '█ ▒ ▓ ░ █ ▒ ▓ ░',
+  '█▓▒░█▓▒░█▓▒░█▓▒░',
+  '█▒░█▒░█▒░█▒░█▒░█',
+];
+
+function GlitchLoader() {
+  const [frame, setFrame] = useState(0);
+  const [showName, setShowName] = useState(false);
+  useEffect(() => {
+    if (frame < glitchFrames.length - 1) {
+      const t = setTimeout(() => setFrame(frame + 1), 60 + Math.random() * 60);
+      return () => clearTimeout(t);
+    } else {
+      setTimeout(() => setShowName(true), 350);
+    }
+  }, [frame]);
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
+      style={{ background: 'repeating-linear-gradient(90deg, #18182A 0 2px, #0A0A1A 2px 8px)' }}
+    >
+      <div className="relative flex flex-col items-center">
+        {/* Flicker Overlay */}
+        <motion.div 
+          initial={{ opacity: 0.2 }}
+          animate={{ opacity: [0.2, 0.5, 0.1, 0.4, 0.2] }}
+          transition={{ duration: 0.7, repeat: Infinity, repeatType: 'mirror' }}
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{ background: 'linear-gradient(180deg, transparent 80%, #fff1 100%)' }}
+        />
+        {/* Glitch Text */}
+        {!showName ? (
+          <motion.div
+            key="glitch"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0, filter: [
+              'contrast(1.5) brightness(1.2)',
+              'contrast(2.5) brightness(2.2) hue-rotate(30deg)',
+              'contrast(1.2) brightness(0.8) hue-rotate(-30deg)',
+              'contrast(1.5) brightness(1.2)'
+            ] }}
+            transition={{ duration: 0.2 }}
+            className="text-4xl md:text-6xl font-black tracking-widest text-accent-purple select-none"
+            style={{ letterSpacing: '0.2em', textShadow: '0 0 12px #8B5CF6, 0 0 2px #fff' }}
+          >
+            {glitchFrames[frame]}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="name"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-5xl md:text-7xl font-black tracking-widest bg-gradient-to-r from-accent-purple via-white to-accent-purple bg-clip-text text-transparent select-none drop-shadow-2xl"
+            style={{ letterSpacing: '0.18em', textShadow: '0 0 24px #8B5CF6, 0 0 2px #fff' }}
+          >
+            AMIT SINGH
+          </motion.div>
+        )}
+        {/* Scanline effect */}
+        <motion.div
+          initial={{ y: '-100%' }}
+          animate={{ y: ['-100%', '120%'] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+          className="absolute left-0 w-full h-2 bg-gradient-to-r from-white/30 via-accent-purple/60 to-white/30 opacity-40 blur-sm z-20"
+        />
+      </div>
+    </motion.div>
+  );
+}
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -1698,26 +1861,11 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-primary text-white selection:bg-accent-purple/30 overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white selection:bg-accent-cyan/30 overflow-x-hidden">
       <CursorGlow />
+
       <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-primary flex items-center justify-center"
-          >
-            <div className="relative">
-              <motion.div 
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-20 h-20 rounded-full border-2 border-accent-purple/20 border-t-accent-purple"
-              />
-              <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black tracking-widest text-accent-purple">
-                AK
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {isLoading && <GlitchLoader />}
       </AnimatePresence>
 
       <Navbar />
@@ -1730,7 +1878,6 @@ export default function App() {
       <Experience />
       <Contact />
       <Footer />
-      
       {/* Background Glows */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent-purple/5 rounded-full blur-[150px]" />
