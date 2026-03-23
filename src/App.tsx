@@ -453,6 +453,7 @@ const Navbar = () => {
     { name: 'PROJECTS', href: '#projects' },
     { name: 'SKILLS', href: '#skills' },
     { name: 'ACHIEVEMENTS', href: '#achievements' },
+    { name: 'CERTIFICATIONS', href: '#certifications' },
     { name: 'JOURNEY', href: '#experience' },
     { name: 'CONTACT', href: '#contact' }
   ];
@@ -483,13 +484,6 @@ const Navbar = () => {
             {item.name}
           </motion.a>
         ))}
-        <motion.button 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="px-6 py-2.5 rounded-full bg-white/5 border border-white/10 text-[11px] font-bold tracking-widest hover:bg-white/10 transition-all"
-        >
-          HIRE ME
-        </motion.button>
       </div>
 
       <button className="md:hidden text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -737,6 +731,7 @@ const Projects = () => {
       impact:
         "Delivers personalized recommendations, improving user engagement.",
       link: "https://github.com/Amitsingh9693/Game-Recommendation-Bot",
+      live: "https://amitsingh9693.github.io/Game-Recommendation-Bot/",
       img: gameguru,
     },
     {
@@ -750,25 +745,25 @@ const Projects = () => {
       impact:
         "Fast, accurate, and user-friendly financial interactions.",
       link: "https://github.com/Amitsingh9693/Live-Currency-Converter",
+      live: "https://profound-bunny-a5448e.netlify.app/",
       img: currencyconverter,
     },
   ];
 
   return (
-    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-primary text-white selection:bg-accent-purple/30">
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-primary text-white selection:bg-accent-purple/30" id="projects">
+      
       {/* Background Effects */}
       <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
       <div className="absolute inset-0 noise-bg" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
 
-      {/* SECTION HEADER */}
+      {/* HEADER */}
       <div className="container mx-auto px-6 md:px-12 flex flex-col items-center text-center py-24 z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <div className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase shadow-[0_0_15px_rgba(124,58,237,0.2)] cursor-default">SELECTED WORK</div>
+        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+          <div className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase shadow-[0_0_15px_rgba(124,58,237,0.2)]">
+            SELECTED WORK
+          </div>
           <h2 className="text-4xl md:text-7xl font-black">
             PROJECTS THAT <br />
             <span className="text-accent-purple">CREATE IMPACT</span>
@@ -778,58 +773,94 @@ const Projects = () => {
 
       {/* PROJECTS */}
       <div className="container mx-auto px-6 md:px-12 grid gap-24 z-10">
-        {projects.map((p, i) => (
-          <div
-            key={i}
-            className="grid lg:grid-cols-2 items-center gap-12 glass rounded-3xl p-8 md:p-12 backdrop-blur-xl border border-white/10"
-          >
-            {/* LEFT — TEXT */}
-            <motion.div
-              initial={{ opacity: 0, x: -80 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-              className="space-y-6"
+        {projects.map((p, i) => {
+          const Wrapper = p.live ? "a" : "div";
+
+          return (
+            <Wrapper
+              key={i}
+              href={p.live || undefined}
+              target={p.live ? "_blank" : undefined}
+              rel="noopener noreferrer"
+              className={`grid lg:grid-cols-2 items-center gap-12 glass rounded-3xl p-8 md:p-12 backdrop-blur-xl border border-white/10 relative transition hover:scale-[1.02] ${
+                p.live ? "cursor-pointer" : ""
+              }`}
             >
-              <h3 className="text-3xl md:text-5xl font-black">
-                {p.title}
-              </h3>
-              <p className="text-accent-purple font-semibold">
-                {p.subtitle}
-              </p>
-              <div className="space-y-4 text-zinc-400 leading-relaxed">
-                <p><span className="text-white font-semibold">Problem:</span> {p.problem}</p>
-                <p><span className="text-white font-semibold">Solution:</span> {p.solution}</p>
-                <p><span className="text-white font-semibold">Tech:</span> {p.tech}</p>
-                <p><span className="text-white font-semibold">Impact:</span> {p.impact}</p>
-              </div>
-              <a
-                href={p.link}
-                target="_blank"
-                className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-accent-purple hover:gap-4 transition-all"
+              
+              {/* LIVE BADGE */}
+              {p.live && (
+                <div className="absolute top-4 left-4 px-3 py-1 text-xs font-bold tracking-widest bg-green-500/20 text-green-400 border border-green-400/30 rounded-full backdrop-blur-md">
+                  LIVE
+                </div>
+              )}
+
+              {/* LEFT TEXT */}
+              <motion.div
+                initial={{ opacity: 0, x: -80 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1 }}
+                className="space-y-6"
               >
-                VIEW PROJECT →
-              </a>
-            </motion.div>
-            {/* RIGHT — IMAGE */}
-            <motion.div
-              initial={{ opacity: 0, x: 80 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1 }}
-              className="relative"
-            >
-              <div className="overflow-hidden rounded-3xl border border-white/10">
-                <img
-                  src={p.img}
-                  alt={p.title}
-                  className="w-full h-full object-cover hover:scale-105 transition duration-700"
-                />
-              </div>
-            </motion.div>
-          </div>
-        ))}
+                <h3 className="text-3xl md:text-5xl font-black">
+                  {p.title}
+                </h3>
+                <p className="text-accent-purple font-semibold">
+                  {p.subtitle}
+                </p>
+
+                <div className="space-y-4 text-zinc-400 leading-relaxed">
+                  <p><span className="text-white font-semibold">Problem:</span> {p.problem}</p>
+                  <p><span className="text-white font-semibold">Solution:</span> {p.solution}</p>
+                  <p><span className="text-white font-semibold">Tech:</span> {p.tech}</p>
+                  <p><span className="text-white font-semibold">Impact:</span> {p.impact}</p>
+                </div>
+
+                {/* LINKS */}
+                <div className="flex gap-6">
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-sm font-bold tracking-widest text-accent-purple hover:gap-4 transition-all"
+                  >
+                    VIEW PROJECT →
+                  </a>
+
+                  {p.live && (
+                    <a
+                      href={p.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-sm font-bold tracking-widest text-green-400"
+                    >
+                      LIVE DEMO ↗
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* RIGHT IMAGE */}
+              <motion.div
+                initial={{ opacity: 0, x: 80 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1 }}
+                className="relative"
+              >
+                <div className="overflow-hidden rounded-3xl border border-white/10">
+                  <img
+                    src={p.img}
+                    alt={p.title}
+                    className="w-full h-full object-cover hover:scale-105 transition duration-700"
+                  />
+                </div>
+              </motion.div>
+            </Wrapper>
+          );
+        })}
       </div>
 
-      {/* FINAL CTA */}
+      {/* CTA */}
       <div className="w-full flex items-center justify-center text-center py-24 z-10">
         <motion.h2
           initial={{ opacity: 0 }}
@@ -1583,7 +1614,7 @@ const Experience = () => {
         </div>
 
         {/* Certifications Section */}
-        <div className="relative">
+        <div className="relative" id="certifications">
           <FloatingElements />
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
