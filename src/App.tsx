@@ -1,5 +1,5 @@
 // --- Stars Background ---
-const StarsBackground = ({ count = 80 }) => {
+const StarsBackground = ({ count = 40 }) => {
   const [stars, setStars] = useState([]);
   useEffect(() => {
     const arr = [];
@@ -8,37 +8,26 @@ const StarsBackground = ({ count = 80 }) => {
         id: i,
         top: Math.random() * 100,
         left: Math.random() * 100,
-        size: Math.random() * 2 + 1,
-        duration: 3 + Math.random() * 7,
-        delay: Math.random() * 10
+        size: Math.random() * 2.0 + 1.0,
+        duration: 1 + Math.random() * 3, // Faster duration for blinking
+        delay: Math.random() * 5
       });
     }
     setStars(arr);
   }, [count]);
   return (
-    <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-black">
       {stars.map(star => (
-        <motion.div
+        <div
           key={star.id}
-          initial={{ opacity: 0.2 }}
-          animate={{ opacity: [0.2, 1, 0.2] }}
-          transition={{
-            duration: star.duration,
-            repeat: Infinity,
-            repeatType: 'loop',
-            delay: star.delay
-          }}
+          className="absolute rounded-full bg-white animate-blink"
           style={{
-            position: 'absolute',
             top: `${star.top}%`,
             left: `${star.left}%`,
             width: star.size,
             height: star.size,
-            borderRadius: '50%',
-            background: 'white',
-            boxShadow: `0 0 6px 2px #fff8, 0 0 1px #7C3AED`,
-            opacity: 0.7,
-            pointerEvents: 'none',
+            animationDuration: `${star.duration}s`,
+            animationDelay: `${star.delay}s`,
           }}
         />
       ))}
@@ -51,7 +40,8 @@ import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, anima
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, PerspectiveCamera, Environment, ContactShadows, Text } from '@react-three/drei';
 import * as THREE from 'three';
-import { Menu, X, ArrowRight, Github, Linkedin, Twitter, Mail, ExternalLink, Code2, Cpu, Globe, Rocket, Terminal, Zap, Download, Award, CheckCircle2, Send } from 'lucide-react';
+import HeatMap from './components/HeatMap';
+import { Menu, X, ArrowRight, Github, Linkedin, Twitter, Mail, ExternalLink, HelpCircle, Flame, Trophy, Cpu, Globe, Rocket, Terminal, Zap, Download, Award, CheckCircle2, Send, Eye } from 'lucide-react';
 import { 
   SiReact, 
   SiTailwindcss, 
@@ -65,7 +55,9 @@ import {
   SiGit, 
   SiGithub, 
   SiOpenai,
-  SiPostman
+  SiPostman,
+  SiLeetcode,
+  SiCodeforces
 } from 'react-icons/si';
 import { FaJava } from 'react-icons/fa';
 import { useInView } from 'react-intersection-observer';
@@ -108,13 +100,13 @@ const TextReveal = ({ text, className = "" }: { text: string, className?: string
 const FloatingElements = () => {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      {[...Array(6)].map((_, i) => (
+      {[...Array(3)].map((_, i) => (
         <motion.div
           key={i}
           initial={{ 
             x: Math.random() * 100 + "%", 
             y: Math.random() * 100 + "%",
-            opacity: 0.1
+            opacity: 0.05
           }}
           animate={{
             x: [
@@ -127,14 +119,14 @@ const FloatingElements = () => {
               Math.random() * 100 + "%",
               Math.random() * 100 + "%"
             ],
-            scale: [1, 1.2, 1],
+            scale: [1, 1.1, 1],
           }}
           transition={{
-            duration: 20 + Math.random() * 10,
+            duration: 25 + Math.random() * 15,
             repeat: Infinity,
             ease: "linear",
           }}
-          className="absolute w-64 h-64 rounded-full bg-accent-purple/5 blur-[100px]"
+          className="absolute w-64 h-64 rounded-full bg-accent-purple/5 blur-[80px]"
         />
       ))}
     </div>
@@ -154,331 +146,751 @@ const ScrollProgress = () => {
 };
 
 const CursorGlow = () => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [flicker, setFlicker] = useState(1);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const flicker = useMotionValue(1);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
     };
     
     const flickerInterval = setInterval(() => {
-      setFlicker(Math.random() > 0.9 ? 1.2 : 1);
-    }, 50);
+      flicker.set(Math.random() > 0.9 ? 1.1 : 1);
+    }, 100);
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       clearInterval(flickerInterval);
     };
-  }, []);
+  }, [mouseX, mouseY, flicker]);
+
+  const glowX = useTransform(mouseX, (x) => x - 200);
+  const glowY = useTransform(mouseY, (y) => y - 200);
+  const coreX = useTransform(mouseX, (x) => x - 8);
+  const coreY = useTransform(mouseY, (y) => y - 8);
 
   return (
     <>
       {/* Main Glow */}
       <motion.div
-        className="fixed top-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none z-[9999] blur-[100px] opacity-40 mix-blend-screen"
-        animate={{
-          x: mousePos.x - 200,
-          y: mousePos.y - 200,
-          scale: flicker,
-        }}
-        transition={{ type: 'spring', damping: 30, stiffness: 200, mass: 0.5 }}
+        className="fixed top-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none z-[9999] blur-[100px] opacity-30 mix-blend-screen"
         style={{
-          background: 'radial-gradient(circle, rgba(124,58,237,0.4) 0%, transparent 70%)',
+          x: glowX,
+          y: glowY,
+          scale: flicker,
+          background: 'radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%)',
         }}
       />
       
       {/* Lightning Core */}
       <motion.div
         className="fixed top-0 left-0 w-4 h-4 rounded-full pointer-events-none z-[10000] blur-sm bg-white"
-        animate={{
-          x: mousePos.x - 8,
-          y: mousePos.y - 8,
-          scale: [1, 1.5, 1],
-          opacity: [0.5, 1, 0.5],
-        }}
-        transition={{ 
-          x: { type: 'spring', damping: 20, stiffness: 300 },
-          y: { type: 'spring', damping: 20, stiffness: 300 },
-          scale: { duration: 0.1, repeat: Infinity },
-          opacity: { duration: 0.1, repeat: Infinity }
-        }}
         style={{
+          x: coreX,
+          y: coreY,
           boxShadow: '0 0 20px 5px rgba(124,58,237,0.8), 0 0 40px 10px rgba(255,255,255,0.5)',
         }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.7, 1, 0.7],
+        }}
+        transition={{ 
+          duration: 0.2, 
+          repeat: Infinity 
+        }}
       />
-
-      {/* Lightning Sparks */}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="fixed top-0 left-0 w-1 h-8 bg-accent-purple rounded-full pointer-events-none z-[9999] blur-[1px]"
-          animate={{
-            x: mousePos.x + (Math.random() - 0.5) * 100,
-            y: mousePos.y + (Math.random() - 0.5) * 100,
-            rotate: Math.random() * 360,
-            opacity: [0, 1, 0],
-            scaleY: [0, 1.5, 0],
-          }}
-          transition={{
-            duration: 0.2,
-            repeat: Infinity,
-            repeatDelay: Math.random() * 0.5,
-          }}
-        />
-      ))}
     </>
   );
 };
 
-// --- 3D Robot Component ---
+// --- 3D Robot Component (Transformer Edition) ---
 
-const Robot = ({ mouse }: { mouse: React.MutableRefObject<[number, number]> }) => {
+const Robot = ({ mouse, scrollProgress }: { mouse: React.MutableRefObject<[number, number]>, scrollProgress: React.MutableRefObject<number> }) => {
   const group = useRef<THREE.Group>(null);
   const head = useRef<THREE.Group>(null);
   const body = useRef<THREE.Group>(null);
   const rightArm = useRef<THREE.Group>(null);
   const leftArm = useRef<THREE.Group>(null);
-  const rightAntenna = useRef<THREE.Mesh>(null);
-  const leftAntenna = useRef<THREE.Mesh>(null);
+  const rightLeg = useRef<THREE.Group>(null);
+  const leftLeg = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
+  const wheelsRef = useRef<THREE.Group>(null);
 
   // Scratch variables for smooth rotation and performance
   const targetHeadRotation = useRef(new THREE.Quaternion());
   const targetBodyRotation = useRef(new THREE.Quaternion());
   const scratchEuler = useRef(new THREE.Euler());
 
+  // Cache materials for performance
+  const materialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+
+  useEffect(() => {
+    if (group.current) {
+      const mats: THREE.MeshStandardMaterial[] = [];
+      group.current.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material) {
+          const mat = child.material as THREE.MeshStandardMaterial;
+          mat.transparent = true;
+          mats.push(mat);
+        }
+      });
+      materialsRef.current = mats;
+    }
+  }, []);
+
   useFrame((state, delta) => {
     if (!group.current || !head.current || !body.current) return;
 
     const t = state.clock.getElapsedTime();
+    const currentScroll = scrollProgress.current;
 
-    // 1. Calculate Target Rotations
-    // Yaw (Y): Full 360-degree range mapped to mouse X (-1 to 1)
-    const yaw = mouse.current[0] * Math.PI;
-    // Pitch (X): Natural vertical range (-60 to 60 degrees)
-    const pitch = -mouse.current[1] * (Math.PI / 3);
-    // Roll (Z): Slight dynamic tilt for "personality"
-    const roll = mouse.current[0] * 0.15;
+    // Transformation Factor (0 = Robot, 1 = Vehicle)
+    // Starts at 5% scroll, finishes at 40%
+    const transform = THREE.MathUtils.smoothstep(currentScroll, 0.05, 0.4);
+    
+    // Exit Factor (Moves the robot up with the page after About section)
+    const exit = THREE.MathUtils.smoothstep(currentScroll, 0.45, 0.6);
 
-    // 2. Head Rotation (Slerp for shortest path and 360-degree smoothness)
-    scratchEuler.current.set(pitch, yaw, roll);
+    // 1. Calculate Target Rotations (Mouse influence decreases as we transform)
+    const mouseInfluence = (1 - transform) * (1 - exit);
+    const yaw = mouse.current[0] * (Math.PI / 4) * mouseInfluence;
+    const pitch = -mouse.current[1] * (Math.PI / 6) * mouseInfluence;
+    const roll = mouse.current[0] * 0.05 * mouseInfluence;
+
+    // 2. Head Rotation & Transformation
+    scratchEuler.current.set(pitch + (transform * Math.PI * 0.5), yaw, roll);
     targetHeadRotation.current.setFromEuler(scratchEuler.current);
-    
-    // Frame-rate independent smoothing (lambda = 8 for responsive but smooth feel)
-    const headAlpha = 1 - Math.exp(-8 * delta);
+    const headAlpha = 1 - Math.exp(-10 * delta);
     head.current.quaternion.slerp(targetHeadRotation.current, headAlpha);
-
-    // 3. Body Rotation (Follows head with more lag and restricted range)
-    const bodyYaw = mouse.current[0] * (Math.PI / 6);
-    const bodyPitch = -mouse.current[1] * 0.1;
     
+    // Head tucks in
+    head.current.position.y = THREE.MathUtils.lerp(2.8, 1.8, transform);
+    head.current.scale.setScalar(THREE.MathUtils.lerp(1, 0.1, transform));
+
+    // 3. Body Rotation & Position
+    const bodyYaw = mouse.current[0] * (Math.PI / 12) * mouseInfluence;
+    const bodyPitch = -mouse.current[1] * 0.05 * mouseInfluence;
     scratchEuler.current.set(bodyPitch, bodyYaw, 0);
     targetBodyRotation.current.setFromEuler(scratchEuler.current);
-    
-    const bodyAlpha = 1 - Math.exp(-4 * delta);
+    const bodyAlpha = 1 - Math.exp(-5 * delta);
     body.current.quaternion.slerp(targetBodyRotation.current, bodyAlpha);
 
-    // 4. Floating/Hovering Physics
-    group.current.position.y = Math.sin(t * 2) * 0.25;
-    group.current.rotation.z = Math.sin(t * 1) * 0.03;
+    // 4. Global Position & Scale
+    // Move behind "About Me" section (down and back)
+    // Then move UP with the page after About section (exit)
+    const baseY = Math.sin(t * 1.5) * 0.05;
+    const targetY = -5;
+    const exitY = 15; // Move up off-screen
     
-    // 5. Arm Animations
+    group.current.position.y = THREE.MathUtils.lerp(
+      THREE.MathUtils.lerp(baseY, targetY, transform),
+      exitY,
+      exit
+    );
+    
+    group.current.position.z = THREE.MathUtils.lerp(0, -15, transform);
+    group.current.position.x = THREE.MathUtils.lerp(2.5, 0, transform); // Start on right, move to center
+    group.current.scale.setScalar(THREE.MathUtils.lerp(0.8, 1.4, transform)); // Start smaller, grow as it transforms
+    
+    // Fade out during exit - Optimized: Use cached materials
+    const opacity = 1 - exit;
+    for (let i = 0; i < materialsRef.current.length; i++) {
+      materialsRef.current[i].opacity = opacity;
+    }
+    
+    // 5. Arm Animations (Folding into truck sides)
     if (rightArm.current && leftArm.current) {
-      // Natural sway
-      rightArm.current.rotation.z = Math.sin(t * 2) * 0.08 - 0.25;
-      leftArm.current.rotation.z = -Math.sin(t * 2) * 0.08 + 0.25;
+      const armIdleZ = Math.sin(t * 1.5) * 0.02 * mouseInfluence;
       
-      // React to mouse Y with smoothing
-      const armTargetX = mouse.current[1] * 0.8;
-      const armAlpha = 1 - Math.exp(-6 * delta);
-      rightArm.current.rotation.x = THREE.MathUtils.lerp(rightArm.current.rotation.x, armTargetX, armAlpha);
-      leftArm.current.rotation.x = THREE.MathUtils.lerp(leftArm.current.rotation.x, armTargetX, armAlpha);
+      // Right Arm
+      rightArm.current.rotation.z = THREE.MathUtils.lerp(armIdleZ - 0.1, -Math.PI * 0.4, transform);
+      rightArm.current.rotation.x = THREE.MathUtils.lerp(mouse.current[1] * 0.2 * mouseInfluence, -Math.PI * 0.5, transform);
+      rightArm.current.position.x = THREE.MathUtils.lerp(1.1, 0.8, transform);
+      rightArm.current.position.z = THREE.MathUtils.lerp(0, -0.5, transform);
+
+      // Left Arm
+      leftArm.current.rotation.z = THREE.MathUtils.lerp(-armIdleZ + 0.1, Math.PI * 0.4, transform);
+      leftArm.current.rotation.x = THREE.MathUtils.lerp(mouse.current[1] * 0.2 * mouseInfluence, -Math.PI * 0.5, transform);
+      leftArm.current.position.x = THREE.MathUtils.lerp(-1.1, -0.8, transform);
+      leftArm.current.position.z = THREE.MathUtils.lerp(0, -0.5, transform);
     }
 
-    // 6. Secondary Animations (Antennas & Core)
-    if (rightAntenna.current && leftAntenna.current) {
-      const twitch = Math.sin(t * 25) * Math.abs(mouse.current[0]) * 0.08;
-      rightAntenna.current.rotation.z = twitch;
-      leftAntenna.current.rotation.z = -twitch;
+    // 6. Leg Animations (Folding into truck rear)
+    if (rightLeg.current && leftLeg.current) {
+      // Right Leg
+      rightLeg.current.rotation.x = THREE.MathUtils.lerp(0, Math.PI * 0.5, transform);
+      rightLeg.current.position.z = THREE.MathUtils.lerp(0, 1.5, transform);
+      rightLeg.current.position.x = THREE.MathUtils.lerp(0.5, 0.3, transform);
+
+      // Left Leg
+      leftLeg.current.rotation.x = THREE.MathUtils.lerp(0, Math.PI * 0.5, transform);
+      leftLeg.current.position.z = THREE.MathUtils.lerp(0, 1.5, transform);
+      leftLeg.current.position.x = THREE.MathUtils.lerp(-0.5, -0.3, transform);
     }
 
+    // 7. Core Pulse
     if (coreRef.current) {
-      const pulse = 1 + Math.sin(t * 4) * 0.1;
+      const pulse = 1 + Math.sin(t * 6) * 0.15;
       coreRef.current.scale.set(pulse, pulse, pulse);
+      const material = coreRef.current.material as THREE.MeshStandardMaterial;
+      if (material) {
+        material.opacity = 1 - transform;
+        material.transparent = true;
+      }
+    }
+
+    // 8. Wheels Transformation
+    if (wheelsRef.current) {
+      wheelsRef.current.scale.setScalar(transform);
+      wheelsRef.current.position.y = THREE.MathUtils.lerp(0, -0.5, transform);
+      const wheelRotation = t * 5 * transform;
+      for (let i = 0; i < wheelsRef.current.children.length; i++) {
+        wheelsRef.current.children[i].rotation.x = wheelRotation;
+      }
     }
   });
 
+  const armorBlue = "#1e40af";
+  const armorRed = "#b91c1c";
+  const metalSilver = "#9ca3af";
+  const metalDark = "#374151";
+  const detailYellow = "#facc15";
+  const glowBlue = "#60a5fa";
+
   return (
-    <group ref={group}>
+    <group ref={group} position={[0, -1.2, 0]}>
       {/* Head Section */}
-      <group ref={head} position={[0, 0.7, 0]}>
-        {/* Main Head Unit - Beveled Look */}
+      <group ref={head} position={[0, 2.8, 0]}>
+        {/* Main Helmet - Layered */}
         <mesh castShadow>
-          <boxGeometry args={[1, 0.8, 0.8]} />
-          <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0.15} />
+          <boxGeometry args={[0.5, 0.6, 0.5]} />
+          <meshStandardMaterial color={armorBlue} metalness={0.8} roughness={0.2} />
         </mesh>
-        
-        {/* Side Panels (Ears) */}
-        <mesh position={[0.51, 0, 0]}>
-          <boxGeometry args={[0.1, 0.4, 0.4]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={1} />
-        </mesh>
-        <mesh position={[-0.51, 0, 0]}>
-          <boxGeometry args={[0.1, 0.4, 0.4]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={1} />
-        </mesh>
-
-        {/* Visor - High Gloss */}
-        <mesh position={[0, 0.05, 0.41]}>
-          <planeGeometry args={[0.9, 0.4]} />
-          <meshStandardMaterial color="#000" metalness={1} roughness={0} />
-        </mesh>
-
-        {/* Digital Eyes - Dynamic Glow */}
-        <group position={[0, 0.05, 0.42]}>
-          <mesh position={[-0.25, 0, 0]}>
-            <planeGeometry args={[0.22, 0.06]} />
-            <meshBasicMaterial color="#7C3AED" />
-            <pointLight intensity={3} distance={1.5} color="#7C3AED" />
+        {/* Helmet Bolts/Details */}
+        {[...Array(4)].map((_, i) => (
+          <mesh key={i} position={[0.26, 0.2 - i * 0.15, 0.2]} rotation={[0, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshStandardMaterial color={metalSilver} metalness={1} />
           </mesh>
-          <mesh position={[0.25, 0, 0]}>
-            <planeGeometry args={[0.22, 0.06]} />
-            <meshBasicMaterial color="#7C3AED" />
-            <pointLight intensity={3} distance={1.5} color="#7C3AED" />
+        ))}
+        {[...Array(4)].map((_, i) => (
+          <mesh key={i} position={[-0.26, 0.2 - i * 0.15, 0.2]} rotation={[0, 0, 0]}>
+            <sphereGeometry args={[0.02, 8, 8]} />
+            <meshStandardMaterial color={metalSilver} metalness={1} />
           </mesh>
-          {/* Scanner Line */}
-          <mesh position={[0, -0.1, 0]}>
-            <planeGeometry args={[0.8, 0.01]} />
-            <meshBasicMaterial color="#7C3AED" transparent opacity={0.5} />
+        ))}
+        {/* Helmet Side Vents */}
+        <mesh position={[0.26, 0, 0]}>
+          <boxGeometry args={[0.05, 0.3, 0.3]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        <mesh position={[-0.26, 0, 0]}>
+          <boxGeometry args={[0.05, 0.3, 0.3]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        {/* Face Plate - Detailed */}
+        <group position={[0, -0.1, 0.2]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.35, 0.35, 0.15]} />
+            <meshStandardMaterial color={metalSilver} metalness={0.9} roughness={0.1} />
+          </mesh>
+          {/* Mouthpiece Detail - More Complex */}
+          <group position={[0, -0.1, 0.08]}>
+            <mesh>
+              <boxGeometry args={[0.2, 0.1, 0.05]} />
+              <meshStandardMaterial color={metalDark} metalness={1} />
+            </mesh>
+            <mesh position={[0, 0, 0.03]}>
+              <boxGeometry args={[0.15, 0.02, 0.01]} />
+              <meshStandardMaterial color={metalSilver} />
+            </mesh>
+          </group>
+        </group>
+        {/* Helmet Crest - Sharper */}
+        <mesh position={[0, 0.35, 0]}>
+          <boxGeometry args={[0.08, 0.25, 0.45]} />
+          <meshStandardMaterial color={armorBlue} metalness={0.8} />
+        </mesh>
+        {/* Side Antennas/Fins - Realistic */}
+        <group position={[0.3, 0.2, 0]} rotation={[0, 0, -0.1]}>
+          <mesh>
+            <boxGeometry args={[0.05, 0.7, 0.2]} />
+            <meshStandardMaterial color={armorBlue} metalness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.35, 0]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.3]} />
+            <meshStandardMaterial color={metalSilver} />
           </mesh>
         </group>
-
-        {/* Antennas with Twitch Ref */}
-        <mesh ref={rightAntenna} position={[0.4, 0.4, 0]}>
-          <cylinderGeometry args={[0.02, 0.02, 0.5]} />
-          <meshStandardMaterial color="#333" />
-          <mesh position={[0, 0.25, 0]}>
-            <sphereGeometry args={[0.05]} />
-            <meshBasicMaterial color="#7C3AED" />
+        <group position={[-0.3, 0.2, 0]} rotation={[0, 0, 0.1]}>
+          <mesh>
+            <boxGeometry args={[0.05, 0.7, 0.2]} />
+            <meshStandardMaterial color={armorBlue} metalness={0.8} />
           </mesh>
-        </mesh>
-        <mesh ref={leftAntenna} position={[-0.4, 0.4, 0]}>
-          <cylinderGeometry args={[0.02, 0.02, 0.5]} />
-          <meshStandardMaterial color="#333" />
-          <mesh position={[0, 0.25, 0]}>
-            <sphereGeometry args={[0.05]} />
-            <meshBasicMaterial color="#7C3AED" />
+          <mesh position={[0, 0.35, 0]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.3]} />
+            <meshStandardMaterial color={metalSilver} />
           </mesh>
-        </mesh>
+        </group>
+        {/* Glowing Eyes - Recessed */}
+        <group position={[0, 0.05, 0.26]}>
+          <mesh position={[-0.1, 0, 0]}>
+            <planeGeometry args={[0.12, 0.05]} />
+            <meshBasicMaterial color={glowBlue} />
+            <pointLight intensity={1} distance={0.5} color={glowBlue} />
+          </mesh>
+          <mesh position={[0.1, 0, 0]}>
+            <planeGeometry args={[0.12, 0.05]} />
+            <meshBasicMaterial color={glowBlue} />
+            <pointLight intensity={1} distance={0.5} color={glowBlue} />
+          </mesh>
+        </group>
       </group>
 
-      {/* Body Section */}
-      <group ref={body}>
-        {/* Neck Joint - Mechanical Detail */}
-        <mesh position={[0, 0.3, 0]}>
-          <cylinderGeometry args={[0.18, 0.18, 0.25, 32]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={0.9} />
+      {/* Torso Section */}
+      <group ref={body} position={[0, 1.8, 0]}>
+        {/* Main Chest Block - Beveled Look */}
+        <mesh castShadow>
+          <boxGeometry args={[1.6, 1.2, 1.0]} />
+          <meshStandardMaterial color={armorRed} metalness={0.7} roughness={0.3} />
         </mesh>
-
-        {/* Main Torso - Heavy Armor Look */}
-        <mesh castShadow position={[0, -0.4, 0]}>
-          <boxGeometry args={[1.3, 1.3, 0.8]} />
-          <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0.1} />
-        </mesh>
-
-        {/* Spine Detail */}
-        <mesh position={[0, -0.4, -0.41]}>
-          <boxGeometry args={[0.2, 1, 0.1]} />
-          <meshStandardMaterial color="#1a1a1a" />
-        </mesh>
-
-        {/* Chest Core - Pulsing Reactor */}
-        <group position={[0, -0.3, 0.41]}>
-          <mesh ref={coreRef}>
-            <circleGeometry args={[0.28, 32]} />
-            <meshBasicMaterial color="#7C3AED" />
-            <pointLight intensity={4} distance={3} color="#7C3AED" />
+        {/* Chest Windows - With Internal Detail */}
+        <group position={[0, 0.15, 0.51]}>
+          {/* Spark / Matrix Core */}
+          <mesh ref={coreRef} position={[0, 0, -0.2]}>
+            <sphereGeometry args={[0.15, 16, 16]} />
+            <meshStandardMaterial color={glowBlue} emissive={glowBlue} emissiveIntensity={2} transparent />
+          </mesh>
+          <mesh position={[-0.38, 0, 0]}>
+            <boxGeometry args={[0.6, 0.5, 0.05]} />
+            <meshStandardMaterial color={glowBlue} transparent opacity={0.4} metalness={1} roughness={0} />
+          </mesh>
+          <mesh position={[0.38, 0, 0]}>
+            <boxGeometry args={[0.6, 0.5, 0.05]} />
+            <meshStandardMaterial color={glowBlue} transparent opacity={0.4} metalness={1} roughness={0} />
+          </mesh>
+          {/* Internal Wires/Details - More Complex */}
+          <group position={[0, 0, -0.05]}>
+            <mesh>
+              <boxGeometry args={[1.4, 0.4, 0.02]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+            {/* Vertical Pistons behind glass */}
+            <mesh position={[-0.3, 0, 0.01]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.4]} />
+              <meshStandardMaterial color={metalSilver} metalness={1} />
+            </mesh>
+            <mesh position={[0.3, 0, 0.01]}>
+              <cylinderGeometry args={[0.02, 0.02, 0.4]} />
+              <meshStandardMaterial color={metalSilver} metalness={1} />
+            </mesh>
+          </group>
+        </group>
+        {/* Autobot Logo Placeholder - Geometric */}
+        <group position={[0, 0.45, 0.51]}>
+          <mesh>
+            <boxGeometry args={[0.2, 0.2, 0.02]} />
+            <meshStandardMaterial color={armorRed} metalness={1} />
           </mesh>
           <mesh position={[0, 0, 0.01]}>
-            <ringGeometry args={[0.3, 0.35, 32]} />
-            <meshBasicMaterial color="#7C3AED" transparent opacity={0.4} />
+            <boxGeometry args={[0.1, 0.1, 0.01]} />
+            <meshStandardMaterial color={metalSilver} metalness={1} />
           </mesh>
         </group>
-
-        {/* Shoulder Joints */}
-        <mesh position={[0.7, -0.1, 0]}>
-          <sphereGeometry args={[0.2]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={1} />
-        </mesh>
-        <mesh position={[-0.7, -0.1, 0]}>
-          <sphereGeometry args={[0.2]} />
-          <meshStandardMaterial color="#1a1a1a" metalness={1} />
-        </mesh>
-
-        {/* Arms - Articulated */}
-        <group ref={rightArm} position={[0.8, -0.1, 0]}>
-          <mesh position={[0, -0.4, 0]}>
-            <boxGeometry args={[0.28, 0.9, 0.28]} />
-            <meshStandardMaterial color="#111" metalness={0.9} />
+        {/* Abdominal Grill - Realistic Slats */}
+        <group position={[0, -0.85, 0.1]}>
+          {[...Array(6)].map((_, i) => (
+            <mesh key={i} position={[0, i * 0.1 - 0.25, 0.41]}>
+              <boxGeometry args={[0.7, 0.04, 0.1]} />
+              <meshStandardMaterial color={metalSilver} metalness={0.9} />
+            </mesh>
+          ))}
+          {/* Side Ab Panels */}
+          <mesh position={[0.45, 0, 0.35]} rotation={[0, 0.2, 0]}>
+            <boxGeometry args={[0.2, 0.8, 0.1]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
           </mesh>
-          <mesh position={[0, -0.95, 0]}>
-            <sphereGeometry args={[0.18]} />
-            <meshStandardMaterial color="#7C3AED" metalness={1} />
+          <mesh position={[-0.45, 0, 0.35]} rotation={[0, -0.2, 0]}>
+            <boxGeometry args={[0.2, 0.8, 0.1]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
+          </mesh>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.9, 0.9, 0.8]} />
+            <meshStandardMaterial color={metalSilver} metalness={0.8} />
           </mesh>
         </group>
-
-        <group ref={leftArm} position={[-0.8, -0.1, 0]}>
-          <mesh position={[0, -0.4, 0]}>
-            <boxGeometry args={[0.28, 0.9, 0.28]} />
-            <meshStandardMaterial color="#111" metalness={0.9} />
+        {/* Shoulder Blocks - Layered */}
+        <group position={[1.1, 0.4, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.8, 0.9, 0.9]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
           </mesh>
-          <mesh position={[0, -0.95, 0]}>
-            <sphereGeometry args={[0.18]} />
-            <meshStandardMaterial color="#7C3AED" metalness={1} />
+          {/* Smokestacks - Perforated Look */}
+          <group position={[0.2, 0.9, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.1, 0.1, 1.5, 16]} />
+              <meshStandardMaterial color={metalSilver} metalness={1} />
+            </mesh>
+            {/* Perforation Details */}
+            {[...Array(8)].map((_, i) => (
+              <mesh key={i} position={[0, i * 0.15 - 0.6, 0.1]} rotation={[0, 0, 0]}>
+                <sphereGeometry args={[0.02]} />
+                <meshBasicMaterial color="#000" />
+              </mesh>
+            ))}
+          </group>
+        </group>
+        <group position={[-1.1, 0.4, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.8, 0.9, 0.9]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
+          </mesh>
+          {/* Smokestacks - Perforated Look */}
+          <group position={[-0.2, 0.9, 0]}>
+            <mesh>
+              <cylinderGeometry args={[0.1, 0.1, 1.5, 16]} />
+              <meshStandardMaterial color={metalSilver} metalness={1} />
+            </mesh>
+            {[...Array(8)].map((_, i) => (
+              <mesh key={i} position={[0, i * 0.15 - 0.6, 0.1]} rotation={[0, 0, 0]}>
+                <sphereGeometry args={[0.02]} />
+                <meshBasicMaterial color="#000" />
+              </mesh>
+            ))}
+          </group>
+        </group>
+      </group>
+
+      {/* Arms - Detailed Joints */}
+      <group ref={rightArm} position={[1.1, 1.8, 0]}>
+        {/* Shoulder Joint */}
+        <mesh position={[0, 0.3, 0]}>
+          <sphereGeometry args={[0.25, 16, 16]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        {/* Upper Arm */}
+        <mesh position={[0, -0.4, 0]}>
+          <boxGeometry args={[0.45, 0.7, 0.45]} />
+          <meshStandardMaterial color={metalSilver} metalness={0.9} />
+        </mesh>
+        {/* Elbow Joint */}
+        <mesh position={[0, -0.8, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.2, 0.2, 0.4, 16]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        {/* Forearm - Layered Armor */}
+        <group position={[0, -1.3, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.6, 1.0, 0.6]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
+          </mesh>
+          {/* Yellow Stripes */}
+          <mesh position={[0, 0, 0.31]}>
+            <boxGeometry args={[0.4, 0.3, 0.02]} />
+            <meshStandardMaterial color={detailYellow} />
+          </mesh>
+        </group>
+        {/* Hand - Articulated Look */}
+        <group position={[0, -2.0, 0]}>
+          <mesh>
+            <boxGeometry args={[0.5, 0.5, 0.5]} />
+            <meshStandardMaterial color={armorBlue} metalness={0.8} />
+          </mesh>
+          {/* Finger Segments */}
+          {[...Array(4)].map((_, i) => (
+            <mesh key={i} position={[0.15 - i * 0.1, -0.3, 0.1]}>
+              <boxGeometry args={[0.08, 0.2, 0.08]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+          ))}
+          {/* Thumb */}
+          <mesh position={[0.25, -0.15, 0.1]} rotation={[0, 0, 0.5]}>
+            <boxGeometry args={[0.08, 0.2, 0.08]} />
+            <meshStandardMaterial color={metalDark} />
+          </mesh>
+        </group>
+      </group>
+      <group ref={leftArm} position={[-1.1, 1.8, 0]}>
+        {/* Shoulder Joint */}
+        <mesh position={[0, 0.3, 0]}>
+          <sphereGeometry args={[0.25, 16, 16]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        {/* Upper Arm */}
+        <mesh position={[0, -0.4, 0]}>
+          <boxGeometry args={[0.45, 0.7, 0.45]} />
+          <meshStandardMaterial color={metalSilver} metalness={0.9} />
+        </mesh>
+        {/* Elbow Joint */}
+        <mesh position={[0, -0.8, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.2, 0.2, 0.4, 16]} />
+          <meshStandardMaterial color={metalDark} metalness={1} />
+        </mesh>
+        {/* Forearm - Layered Armor */}
+        <group position={[0, -1.3, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[0.6, 1.0, 0.6]} />
+            <meshStandardMaterial color={armorRed} metalness={0.7} />
+          </mesh>
+          <mesh position={[0, 0, 0.31]}>
+            <boxGeometry args={[0.4, 0.3, 0.02]} />
+            <meshStandardMaterial color={detailYellow} />
+          </mesh>
+        </group>
+        {/* Hand - Articulated Look */}
+        <group position={[0, -2.0, 0]}>
+          <mesh>
+            <boxGeometry args={[0.5, 0.5, 0.5]} />
+            <meshStandardMaterial color={armorBlue} metalness={0.8} />
+          </mesh>
+          {/* Finger Segments */}
+          {[...Array(4)].map((_, i) => (
+            <mesh key={i} position={[-0.15 + i * 0.1, -0.3, 0.1]}>
+              <boxGeometry args={[0.08, 0.2, 0.08]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+          ))}
+          {/* Thumb */}
+          <mesh position={[-0.25, -0.15, 0.1]} rotation={[0, 0, -0.5]}>
+            <boxGeometry args={[0.08, 0.2, 0.08]} />
+            <meshStandardMaterial color={metalDark} />
           </mesh>
         </group>
       </group>
 
-      {/* Hover Base - Multi-Ring Propulsion */}
-      <group position={[0, -2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <mesh>
-          <cylinderGeometry args={[1.6, 1.6, 0.12, 64]} />
-          <meshStandardMaterial color="#050505" metalness={1} roughness={0} />
+      {/* Legs - Heavy Mechanical Detail */}
+      <group position={[0, 0.8, 0]}>
+        {/* Hips/Waist - Complex */}
+        <group position={[0, 0, 0]}>
+          <mesh castShadow>
+            <boxGeometry args={[1.4, 0.7, 0.8]} />
+            <meshStandardMaterial color={metalSilver} metalness={0.8} />
+          </mesh>
+          {/* Waist Lights - Recessed */}
+          <mesh position={[0.4, 0, 0.41]}>
+            <boxGeometry args={[0.35, 0.25, 0.05]} />
+            <meshStandardMaterial color={detailYellow} />
+          </mesh>
+          <mesh position={[-0.4, 0, 0.41]}>
+            <boxGeometry args={[0.35, 0.25, 0.05]} />
+            <meshStandardMaterial color={detailYellow} />
+          </mesh>
+        </group>
+        
+        {/* Right Leg */}
+        <group ref={rightLeg} position={[0.5, -0.4, 0]}>
+          {/* Thigh - Mechanical */}
+          <group position={[0, -0.6, 0]}>
+            <mesh>
+              <boxGeometry args={[0.5, 1.2, 0.5]} />
+              <meshStandardMaterial color={metalSilver} metalness={0.9} />
+            </mesh>
+            {/* Thigh Piston */}
+            <mesh position={[0.2, 0, 0.2]}>
+              <cylinderGeometry args={[0.05, 0.05, 1.0]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+          </group>
+          {/* Knee Joint */}
+          <mesh position={[0, -1.2, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.25, 0.25, 0.5, 16]} />
+            <meshStandardMaterial color={metalDark} metalness={1} />
+          </mesh>
+          {/* Lower Leg - Heavy Armor */}
+          <group position={[0, -2.0, 0]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.8, 1.6, 0.8]} />
+              <meshStandardMaterial color={armorBlue} metalness={0.8} />
+            </mesh>
+            {/* Vents - Detailed */}
+            <group position={[0, 0, 0.41]}>
+              {[...Array(4)].map((_, i) => (
+                <mesh key={i} position={[0, i * 0.2 - 0.3, 0]}>
+                  <boxGeometry args={[0.5, 0.05, 0.05]} />
+                  <meshStandardMaterial color={metalSilver} />
+                </mesh>
+              ))}
+            </group>
+            {/* Mechanical Greebles on Leg */}
+            <mesh position={[0, 0.5, 0.41]}>
+              <boxGeometry args={[0.3, 0.1, 0.05]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+            {/* Side Detail (Yellow Circle) */}
+            <mesh position={[0.41, -0.3, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
+              <meshStandardMaterial color={detailYellow} />
+            </mesh>
+          </group>
+          {/* Foot - Blocky & Detailed */}
+          <group position={[0, -3.0, 0.2]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.9, 0.5, 1.3]} />
+              <meshStandardMaterial color={armorBlue} metalness={0.8} />
+            </mesh>
+            {/* Toe Detail - More Complex */}
+            <group position={[0, -0.1, 0.6]}>
+              <mesh>
+                <boxGeometry args={[0.7, 0.2, 0.2]} />
+                <meshStandardMaterial color={metalDark} />
+              </mesh>
+              <mesh position={[0, -0.05, 0.1]}>
+                <boxGeometry args={[0.6, 0.05, 0.05]} />
+                <meshStandardMaterial color={metalSilver} />
+              </mesh>
+            </group>
+          </group>
+        </group>
+
+        {/* Left Leg */}
+        <group ref={leftLeg} position={[-0.5, -0.4, 0]}>
+          {/* Thigh - Mechanical */}
+          <group position={[0, -0.6, 0]}>
+            <mesh>
+              <boxGeometry args={[0.5, 1.2, 0.5]} />
+              <meshStandardMaterial color={metalSilver} metalness={0.9} />
+            </mesh>
+            {/* Thigh Piston */}
+            <mesh position={[-0.2, 0, 0.2]}>
+              <cylinderGeometry args={[0.05, 0.05, 1.0]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+          </group>
+          {/* Knee Joint */}
+          <mesh position={[0, -1.2, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.25, 0.25, 0.5, 16]} />
+            <meshStandardMaterial color={metalDark} metalness={1} />
+          </mesh>
+          {/* Lower Leg - Heavy Armor */}
+          <group position={[0, -2.0, 0]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.8, 1.6, 0.8]} />
+              <meshStandardMaterial color={armorBlue} metalness={0.8} />
+            </mesh>
+            {/* Vents - Detailed */}
+            <group position={[0, 0, 0.41]}>
+              {[...Array(4)].map((_, i) => (
+                <mesh key={i} position={[0, i * 0.2 - 0.3, 0]}>
+                  <boxGeometry args={[0.5, 0.05, 0.05]} />
+                  <meshStandardMaterial color={metalSilver} />
+                </mesh>
+              ))}
+            </group>
+            {/* Mechanical Greebles on Leg */}
+            <mesh position={[0, 0.5, 0.41]}>
+              <boxGeometry args={[0.3, 0.1, 0.05]} />
+              <meshStandardMaterial color={metalDark} />
+            </mesh>
+            {/* Side Detail (Yellow Circle) */}
+            <mesh position={[-0.41, -0.3, 0]} rotation={[0, -Math.PI / 2, 0]}>
+              <cylinderGeometry args={[0.2, 0.2, 0.05, 16]} />
+              <meshStandardMaterial color={detailYellow} />
+            </mesh>
+          </group>
+          {/* Foot - Blocky & Detailed */}
+          <group position={[0, -3.0, 0.2]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.9, 0.5, 1.3]} />
+              <meshStandardMaterial color={armorBlue} metalness={0.8} />
+            </mesh>
+            {/* Toe Detail - More Complex */}
+            <group position={[0, -0.1, 0.6]}>
+              <mesh>
+                <boxGeometry args={[0.7, 0.2, 0.2]} />
+                <meshStandardMaterial color={metalDark} />
+              </mesh>
+              <mesh position={[0, -0.05, 0.1]}>
+                <boxGeometry args={[0.6, 0.05, 0.05]} />
+                <meshStandardMaterial color={metalSilver} />
+              </mesh>
+            </group>
+          </group>
+        </group>
+      </group>
+
+      {/* Vehicle Wheels - Only visible in vehicle mode */}
+      <group ref={wheelsRef} scale={0}>
+        {/* Front Wheels */}
+        <mesh position={[0.8, 0.5, 0.8]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
-        {/* Propulsion Rings */}
-        <mesh position={[0, 0.07, 0]}>
-          <ringGeometry args={[1.4, 1.48, 64]} />
-          <meshBasicMaterial color="#7C3AED" transparent opacity={0.9} />
+        <mesh position={[-0.8, 0.5, 0.8]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
-        <mesh position={[0, 0.08, 0]}>
-          <ringGeometry args={[1.1, 1.15, 64]} />
-          <meshBasicMaterial color="#7C3AED" transparent opacity={0.5} />
+        {/* Rear Wheels */}
+        <mesh position={[0.8, 0.5, -1.2]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
-        <mesh position={[0, 0.09, 0]}>
-          <ringGeometry args={[0.7, 0.75, 64]} />
-          <meshBasicMaterial color="#7C3AED" transparent opacity={0.3} />
+        <mesh position={[-0.8, 0.5, -1.2]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
+        </mesh>
+        <mesh position={[0.8, 0.5, -1.8]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
+        </mesh>
+        <mesh position={[-0.8, 0.5, -1.8]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
       </group>
     </group>
   );
 };
 
-const Scene = ({ mouse }: { mouse: React.MutableRefObject<[number, number]> }) => {
+const Platform = ({ scrollProgress }: { scrollProgress: React.MutableRefObject<number> }) => {
+  const group = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (!group.current) return;
+    const currentScroll = scrollProgress.current;
+    const transform = THREE.MathUtils.smoothstep(currentScroll, 0.05, 0.4);
+    group.current.position.y = THREE.MathUtils.lerp(-2.8, -10, transform);
+    group.current.position.x = THREE.MathUtils.lerp(2.5, 0, transform); // Follow robot's x position
+    group.current.scale.setScalar(1 - transform);
+  });
+
+  return (
+    <group ref={group} position={[0, -2.8, 0]}>
+      {/* Main Base */}
+      <mesh receiveShadow>
+        <cylinderGeometry args={[3, 3.5, 0.5, 6]} />
+        <meshStandardMaterial color="#111" metalness={0.8} roughness={0.4} />
+      </mesh>
+      {/* Glowing Rim */}
+      <mesh position={[0, 0.26, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[2.8, 2.9, 6]} />
+        <meshBasicMaterial color="#60a5fa" transparent opacity={0.8} />
+      </mesh>
+      {/* Tech Details */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[2.5, 2.5, 0.1, 32]} />
+        <meshStandardMaterial color="#1a1a1a" metalness={1} />
+      </mesh>
+    </group>
+  );
+};
+
+const Scene = ({ mouse, scrollProgress }: { mouse: React.MutableRefObject<[number, number]>, scrollProgress: React.MutableRefObject<number> }) => {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 6]} fov={45} />
-      <ambientLight intensity={0.4} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1.5} castShadow />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#7C3AED" />
+      <PerspectiveCamera makeDefault position={[0, 1, 8]} fov={40} />
+      <ambientLight intensity={0.5} />
+      <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={2} castShadow />
+      <pointLight position={[-10, 5, -10]} intensity={1} color="#60a5fa" />
+      <pointLight position={[0, 2, 5]} intensity={0.5} color="#ffffff" />
       
-      <Float speed={2.5} rotationIntensity={0.4} floatIntensity={0.8}>
-        <Robot mouse={mouse} />
-      </Float>
+      <Robot mouse={mouse} scrollProgress={scrollProgress} />
+      <Platform scrollProgress={scrollProgress} />
 
-      <ContactShadows position={[0, -2.5, 0]} opacity={0.5} scale={12} blur={2.5} far={4.5} />
-      <Environment preset="night" />
+      <ContactShadows position={[0, -2.8, 0]} opacity={0.6} scale={15} blur={2} far={5} />
+      <Environment preset="city" />
     </>
   );
 };
@@ -564,18 +976,7 @@ const Navbar = () => {
 };
 
 const Hero = () => {
-  const mouse = useRef<[number, number]>([0, 0]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.current = [
-        (e.clientX / window.innerWidth) * 2 - 1,
-        -(e.clientY / window.innerHeight) * 2 + 1,
-      ];
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  const [showCvModal, setShowCvModal] = useState(false);
 
   return (
     <section className="relative min-h-screen w-full flex items-center overflow-hidden pt-20">
@@ -627,8 +1028,7 @@ const Hero = () => {
                 loop: true,
                 cursor: '_',
                 delay: 50,
-                deleteSpeed: 30,
-                pauseFor: 1500
+                deleteSpeed: 30
               }}
             />
           </div>
@@ -659,6 +1059,14 @@ const Hero = () => {
               DOWNLOAD CV
               <Download className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
             </a>
+            
+            <button 
+              onClick={() => setShowCvModal(true)}
+              className="px-8 py-4 rounded-xl btn-gradient text-white font-bold text-sm tracking-widest flex items-center gap-3 group"
+            >
+              VIEW CV
+              <Eye className="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+            </button>
 
             <div className="flex gap-4">
               <a href="https://github.com/Amitsingh9693" target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-all">
@@ -674,9 +1082,8 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* RIGHT SIDE (3D unchanged) */}
+        {/* RIGHT SIDE (Placeholder for Robot) */}
         <div className="relative h-[500px] lg:h-full w-full flex items-center justify-center">
-          
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
             <motion.div 
               initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
@@ -687,17 +1094,60 @@ const Hero = () => {
               WELCOME
             </motion.div>
           </div>
-
-          <div className="w-full h-full relative z-10">
-            <Canvas shadows dpr={[1, 2]}>
-              <Suspense fallback={null}>
-                <Scene mouse={mouse} />
-              </Suspense>
-            </Canvas>
-          </div>
-
         </div>
       </div>
+
+      {/* CV Modal */}
+      <AnimatePresence>
+        {showCvModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowCvModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl max-h-[90vh] bg-zinc-900 border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-zinc-900/50">
+                <h3 className="text-lg font-bold text-white tracking-widest">AMIT_KUMAR_CV.PDF</h3>
+                <div className="flex items-center gap-4">
+                  <a 
+                    href="/cv.pdf"
+                    download="Amit_Kumar_CV.pdf"
+                    className="flex items-center gap-2 text-sm font-bold tracking-widest text-accent-cyan hover:text-accent-purple transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    DOWNLOAD
+                  </a>
+                  <button
+                    onClick={() => setShowCvModal(false)}
+                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-zinc-400 hover:text-white" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 overflow-auto bg-zinc-950 p-4 md:p-8 flex items-center justify-center">
+                {/* Using an iframe to display the PDF */}
+                <iframe 
+                  src="/cv.pdf" 
+                  className="w-full h-[70vh] rounded-lg border border-white/5 bg-white"
+                  title="Amit Kumar CV"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
@@ -711,8 +1161,8 @@ const About = () => {
       className="py-32 relative overflow-hidden"
       ref={ref}
     >
-      <div className="container mx-auto px-6 md:px-12">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className="max-w-4xl mx-auto text-center p-12 md:p-20 rounded-[60px] border border-white/5 bg-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -796,51 +1246,50 @@ const Projects = () => {
   ];
 
   return (
-    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-primary text-white selection:bg-accent-purple/30" id="projects">
+    <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden text-white selection:bg-accent-purple/30" id="projects">
       
-      {/* Background Effects: Only glows, no pattern or noise */}
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
+      {/* Background Effects: Removed */}
 
-      {/* HEADER */}
-      <div className="container mx-auto px-6 md:px-12 flex flex-col items-center text-center py-24 z-10">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <div className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase shadow-[0_0_15px_rgba(124,58,237,0.2)]">
-            SELECTED WORK
+      {/* PROJECTS CONTENT */}
+      <div className="container mx-auto px-6 md:px-12 z-10">
+        <div className="rounded-[60px] p-12 md:p-20 border border-white/5 bg-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+          
+          {/* HEADER */}
+          <div className="flex flex-col items-center text-center pb-24">
+            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+              <div className="px-4 py-1.5 rounded-full border border-accent-purple/30 bg-accent-purple/5 text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase shadow-[0_0_15px_rgba(124,58,237,0.2)]">
+                SELECTED WORK
+              </div>
+              <h2 className="text-4xl md:text-7xl font-black">
+                PROJECTS THAT <br />
+                <span className="text-accent-purple">CREATE IMPACT</span>
+              </h2>
+            </motion.div>
           </div>
-          <h2 className="text-4xl md:text-7xl font-black">
-            PROJECTS THAT <br />
-            <span className="text-accent-purple">CREATE IMPACT</span>
-          </h2>
-        </motion.div>
-      </div>
 
-      {/* PROJECTS */}
-      <div className="container mx-auto px-6 md:px-12 grid gap-24 z-10">
-        {projects.map((p, i) => {
-          const Wrapper = p.live ? "a" : "div";
-
-          return (
-            <Wrapper
-              key={i}
-              href={p.live || undefined}
-              target={p.live ? "_blank" : undefined}
-              rel="noopener noreferrer"
-              className={`grid lg:grid-cols-2 items-center gap-12 glass rounded-3xl p-8 md:p-12 backdrop-blur-xl border border-white/10 relative transition hover:scale-[1.02] ${
-                p.live ? "cursor-pointer" : ""
-              }`}
-            >
+          {/* PROJECTS LIST */}
+          <div className="grid gap-24">
+            {projects.map((p, i) => {
+              return (
+                <div
+                  key={i}
+                  onClick={() => p.live && window.open(p.live, "_blank", "noopener,noreferrer")}
+                  className={`grid lg:grid-cols-2 items-center gap-12 rounded-3xl p-8 md:p-12 border border-white/10 relative transition ${
+                    p.live ? "cursor-pointer hover:scale-[1.01]" : ""
+                  }`}
+                >
               
               {/* LIVE BADGE */}
               {p.live && (
-                <div className="absolute top-4 left-4 px-3 py-1 text-xs font-bold tracking-widest bg-green-500/20 text-green-400 border border-green-400/30 rounded-full backdrop-blur-md">
+                <div className="absolute top-4 left-4 px-3 py-1 text-xs font-bold tracking-widest bg-green-500/20 text-green-400 border border-green-400/30 rounded-full">
                   LIVE
                 </div>
               )}
 
               {/* LEFT TEXT */}
               <motion.div
-                initial={{ opacity: 0, x: -80 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 transition={{ duration: 1 }}
                 className="space-y-6"
               >
@@ -885,8 +1334,8 @@ const Projects = () => {
 
               {/* RIGHT IMAGE */}
               <motion.div
-                initial={{ opacity: 0, x: 80 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 transition={{ duration: 1 }}
                 className="relative"
               >
@@ -894,13 +1343,16 @@ const Projects = () => {
                   <img
                     src={p.img}
                     alt={p.title}
-                    className="w-full h-full object-cover hover:scale-105 transition duration-700"
+                    loading="lazy"
+                    className="w-full h-full object-cover transition duration-700"
                   />
                 </div>
               </motion.div>
-            </Wrapper>
-          );
-        })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* CTA */}
@@ -1060,6 +1512,7 @@ const Achievements = () => {
           totalSolved: apiData.totalSolved ?? apiData.solvedProblem ?? 0,
           ranking: apiData.ranking ?? apiData.globalRanking ?? "N/A",
           streak,
+          submissionCalendar: apiData.submissionCalendar,
         };
       }
 
@@ -1106,9 +1559,9 @@ const Achievements = () => {
   };
 
   const leetcodeStats = [
-    { label: 'PROBLEMS SOLVED', value: stats?.totalSolved, icon: Code2 },
-    { label: 'CODING STREAK', value: stats?.streak, icon: Zap, suffix: " DAYS" },
-    { label: 'GLOBAL RANKING', value: stats?.ranking, icon: Globe, prefix: "#" }
+    { label: 'PROBLEMS SOLVED', value: stats?.totalSolved, icon: HelpCircle },
+    { label: 'CODING STREAK', value: stats?.streak, icon: Flame, suffix: " DAYS" },
+    { label: 'GLOBAL RANKING', value: stats?.ranking, icon: Trophy, prefix: "#" }
   ];
 
   return (
@@ -1120,7 +1573,10 @@ const Achievements = () => {
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <div className="text-[10px] font-black tracking-[0.3em] text-accent-purple mb-4 uppercase">Competitive Programming</div>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <SiLeetcode className="w-10 h-10 text-accent-purple" />
+            <div className="text-[10px] font-black tracking-[0.3em] text-accent-purple uppercase">Competitive Programming</div>
+          </div>
           <TextReveal text="LEETCODE DASHBOARD." className="text-4xl md:text-6xl font-display font-black" />
           <a 
             href="https://leetcode.com/u/AmitSingh9693/" 
@@ -1144,7 +1600,7 @@ const Achievements = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {leetcodeStats.map((stat, i) => (
             <motion.div
               key={i}
@@ -1189,6 +1645,12 @@ const Achievements = () => {
               <div className="text-xs font-black tracking-[0.2em] text-zinc-500 uppercase relative z-10">{stat.label}</div>
             </motion.div>
           ))}
+        </div>
+        <div className="flex justify-center">
+          <HeatMap data={stats?.submissionCalendar ? Object.entries(typeof stats.submissionCalendar === 'string' ? JSON.parse(stats.submissionCalendar) : stats.submissionCalendar).map(([timestamp, count]) => ({
+            date: new Date(parseInt(timestamp) * 1000).toISOString().split('T')[0],
+            count: count as number
+          })) : []} />
         </div>
       </div>
     </section>
@@ -1509,7 +1971,10 @@ const CertificationSlider = ({ items }: { items: any[] }) => {
             }}
             className="min-w-[320px] md:min-w-[400px] flex-shrink-0 group"
           >
-            <div className="glass p-8 rounded-[40px] border-white/5 hover:border-accent-purple/30 hover:shadow-[0_0_50px_rgba(124,58,237,0.2)] transition-all duration-700 hover:scale-[1.02] bg-white/5 backdrop-blur-2xl h-[580px] flex flex-col relative overflow-hidden">
+            <div 
+              onClick={() => setModalImg(item.img)}
+              className="glass p-8 rounded-[40px] border-white/5 hover:border-accent-purple/30 hover:shadow-[0_0_50px_rgba(124,58,237,0.2)] transition-all duration-700 hover:scale-[1.02] bg-white/5 backdrop-blur-2xl h-[580px] flex flex-col relative overflow-hidden cursor-pointer"
+            >
               {/* Card Background Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-accent-purple/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               
@@ -1518,22 +1983,12 @@ const CertificationSlider = ({ items }: { items: any[] }) => {
                   <img 
                     src={item.img} 
                     alt={item.title} 
-                    className="w-full h-[240px] object-cover rounded-3xl cursor-pointer" 
+                    className="w-full h-[240px] object-cover rounded-3xl" 
                     style={{width: '100%', height: '240px', imageRendering: 'auto'}} 
                     referrerPolicy="no-referrer" 
-                    onClick={() => setModalImg(item.img)}
                   />
                 </div>
               )}
-                    {/* Modal Popup for Certificate Image */}
-                    {modalImg && (
-                      <div className="fixed inset-0 z-100 bg-black/70 flex items-center justify-center" onClick={() => setModalImg(null)}>
-                        <div className="relative" onClick={e => e.stopPropagation()}>
-                          <img src={modalImg} alt="Certificate" className="max-w-[90vw] max-h-[80vh] rounded-3xl shadow-2xl border-4 border-accent-purple bg-white" style={{background: '#fff'}} />
-                          <button className="absolute top-2 right-2 bg-accent-purple text-white rounded-full w-8 h-8 flex items-center justify-center text-xl font-bold shadow-lg" onClick={() => setModalImg(null)}>&times;</button>
-                        </div>
-                      </div>
-                    )}
               
               <div className="px-5 py-2 rounded-full bg-accent-purple/10 border border-accent-purple/20 text-[10px] font-black tracking-[0.2em] text-accent-purple whitespace-nowrap w-fit mb-6 uppercase">
                 {item.year}
@@ -1558,6 +2013,10 @@ const CertificationSlider = ({ items }: { items: any[] }) => {
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setModalImg(item.img);
+                  }}
                   className="text-[10px] font-black text-accent-purple uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2 group/btn"
                 >
                   VIEW CERTIFICATE
@@ -1568,6 +2027,34 @@ const CertificationSlider = ({ items }: { items: any[] }) => {
           </motion.div>
         ))}
       </div>
+
+      {/* Modal Popup for Certificate Image */}
+      {modalImg && (
+        <div className="fixed inset-0 z-[1000] bg-black/90 flex items-center justify-center p-4" onClick={() => setModalImg(null)}>
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="relative max-w-5xl w-full" 
+            onClick={e => e.stopPropagation()}
+          >
+            <img 
+              src={modalImg} 
+              alt="Certificate" 
+              className="w-full h-auto rounded-3xl shadow-2xl border-2 border-accent-purple/30 bg-white" 
+              style={{ maxHeight: '85vh', objectFit: 'contain' }} 
+            />
+            <button 
+              className="absolute -top-4 -right-4 bg-accent-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-xl hover:scale-110 transition-transform z-[1001]" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalImg(null);
+              }}
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </motion.div>
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="max-w-md mx-auto h-1 bg-white/5 rounded-full mt-8 overflow-hidden">
@@ -1928,31 +2415,66 @@ function GlitchLoader() {
 }
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const scrollProgress = useRef(0);
+  const mouse = useRef<[number, number]>([0, 0]);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
+    
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = window.scrollY / totalHeight;
+      scrollProgress.current = Math.min(Math.max(progress, 0), 1);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.current = [
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1,
+      ];
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#0a0a1a] to-[#18181b] text-white selection:bg-accent-cyan/30 overflow-x-hidden">
-      <StarsBackground count={90} />
+      <StarsBackground count={300} />
       <CursorGlow />
 
       <AnimatePresence>
         {isLoading && <GlitchLoader />}
       </AnimatePresence>
 
-      <Navbar />
-      <Hero />
-      <About />
-      <Projects />
-      <Skills />
-      <Achievements />
-      <Training />
-      <Experience />
-      <Contact />
-      <Footer />
+      {/* Fixed 3D Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Canvas shadows dpr={[1, 2]}>
+          <Suspense fallback={null}>
+            <Scene mouse={mouse} scrollProgress={scrollProgress} />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <About />
+        <Projects />
+        <Skills />
+        <Achievements />
+        <Training />
+        <Experience />
+        <Contact />
+        <Footer />
+      </div>
+
       {/* Background Glows */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent-purple/5 rounded-full blur-[150px]" />
