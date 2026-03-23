@@ -1,3 +1,50 @@
+// --- Stars Background ---
+const StarsBackground = ({ count = 80 }) => {
+  const [stars, setStars] = useState([]);
+  useEffect(() => {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      arr.push({
+        id: i,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        size: Math.random() * 2 + 1,
+        duration: 3 + Math.random() * 7,
+        delay: Math.random() * 10
+      });
+    }
+    setStars(arr);
+  }, [count]);
+  return (
+    <div className="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+      {stars.map(star => (
+        <motion.div
+          key={star.id}
+          initial={{ opacity: 0.2 }}
+          animate={{ opacity: [0.2, 1, 0.2] }}
+          transition={{
+            duration: star.duration,
+            repeat: Infinity,
+            repeatType: 'loop',
+            delay: star.delay
+          }}
+          style={{
+            position: 'absolute',
+            top: `${star.top}%`,
+            left: `${star.left}%`,
+            width: star.size,
+            height: star.size,
+            borderRadius: '50%',
+            background: 'white',
+            boxShadow: `0 0 6px 2px #fff8, 0 0 1px #7C3AED`,
+            opacity: 0.7,
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 // Needed for GlitchLoader at the bottom
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useMotionValue, animate } from 'motion/react';
@@ -533,9 +580,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen w-full flex items-center overflow-hidden pt-20">
       
-      {/* Background Effects (unchanged) */}
-      <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
-      <div className="absolute inset-0 noise-bg" />
+      {/* Background Effects: Only glows, no pattern or noise */}
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
 
       <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 items-center h-full relative z-10">
@@ -753,9 +798,7 @@ const Projects = () => {
   return (
     <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-primary text-white selection:bg-accent-purple/30" id="projects">
       
-      {/* Background Effects */}
-      <div className="absolute inset-0 grid-pattern opacity-20 pointer-events-none" />
-      <div className="absolute inset-0 noise-bg" />
+      {/* Background Effects: Only glows, no pattern or noise */}
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-accent-purple/10 rounded-full blur-[120px] animate-pulse-glow pointer-events-none" />
 
       {/* HEADER */}
@@ -1892,7 +1935,8 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-accent-cyan/30 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-black via-[#0a0a1a] to-[#18181b] text-white selection:bg-accent-cyan/30 overflow-x-hidden">
+      <StarsBackground count={90} />
       <CursorGlow />
 
       <AnimatePresence>
