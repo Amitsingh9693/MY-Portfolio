@@ -1162,7 +1162,7 @@ const About = () => {
       ref={ref}
     >
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        <div className="max-w-4xl mx-auto text-center p-12 md:p-20 rounded-[60px] border border-white/5 bg-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+        <div className="max-w-4xl mx-auto text-center p-12 md:p-20 rounded-[60px] border border-white/10 bg-black/40 backdrop-blur-xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -1274,9 +1274,7 @@ const Projects = () => {
                 <div
                   key={i}
                   onClick={() => p.live && window.open(p.live, "_blank", "noopener,noreferrer")}
-                  className={`grid lg:grid-cols-2 items-center gap-12 rounded-3xl p-8 md:p-12 border border-white/10 relative transition ${
-                    p.live ? "cursor-pointer hover:scale-[1.01]" : ""
-                  }`}
+                  className={`grid lg:grid-cols-2 items-center gap-12 rounded-3xl p-8 md:p-12 border border-white/10 relative transition bg-black/40 backdrop-blur-xl ${p.live ? "cursor-pointer hover:scale-[1.01]" : ""}`}
                 >
               
               {/* LIVE BADGE */}
